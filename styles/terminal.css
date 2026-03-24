@@ -6,6 +6,18 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'DungGeunMo';
+  src: url('/fonts/DungGeunMo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 폰트 클래스 */
+html.font-d2coding * { font-family: 'D2Coding', monospace !important; }
+html.font-dunggeunmo * { font-family: 'DungGeunMo', monospace !important; }
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
