@@ -10,6 +10,7 @@ export async function GET() {
   authUrl.searchParams.set("redirect_uri", redirectUri);
   authUrl.searchParams.set("scope", scope);
   authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("force_authentication", "1"); // 매번 계정 선택 강제
 
   return NextResponse.redirect(authUrl.toString());
 }
