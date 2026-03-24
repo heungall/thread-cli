@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-terminal-bg text-terminal-text font-mono;
+  }
+
+  ::selection {
+    @apply bg-terminal-blue/30;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-terminal-bg;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-terminal-border rounded;
+  }
+}
+
+@layer components {
+  .terminal-border {
+    @apply border border-terminal-border;
+  }
+
+  .terminal-card {
+    @apply bg-terminal-surface border border-terminal-border rounded-sm p-4;
+  }
+
+  .terminal-prompt::before {
+    content: '> ';
+    @apply text-terminal-green;
+  }
+
+  .cursor-blink {
+    animation: blink 1s step-end infinite;
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
