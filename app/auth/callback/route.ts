@@ -30,9 +30,9 @@ export async function GET(request: NextRequest) {
       display_name: profile.name,
       profile_pic_url: profile.threads_profile_picture_url,
       access_token: tokenData.access_token,
-      token_expires_at: new Date(
-        Date.now() + tokenData.expires_in * 1000
-      ).toISOString(),
+      token_expires_at: tokenData.expires_in
+        ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+        : new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(), // 기본 60일
     });
 
     const session = await createSession(user.id);
