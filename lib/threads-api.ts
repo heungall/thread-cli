@@ -56,13 +56,14 @@ export type ThreadsPost = {
   like_count?: number;
   replies_count?: number;
   repost_count?: number;
+  has_liked?: boolean;
 };
 
 export async function getUserFeed(
   accessToken: string,
   cursor?: string
 ): Promise<{ data: ThreadsPost[]; paging?: { cursors?: { after?: string } } }> {
-  const fields = "id,text,timestamp,media_type,permalink,like_count,replies_count,repost_count";
+  const fields = "id,text,timestamp,media_type,permalink,like_count,replies_count,repost_count,has_liked";
   const url = new URL(`${THREADS_API_BASE}/me/threads`);
   url.searchParams.set("fields", fields);
   url.searchParams.set("access_token", accessToken);
@@ -112,13 +113,20 @@ export async function createPost(accessToken: string, text: string) {
 // ─── Like ────────────────────────────────────────────────
 
 export async function likePost(accessToken: string, postId: string) {
-  const res = await fetch(`${THREADS_API_BASE}/${postId}/likes`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ access_token: accessToken }),
-  });
-
+  const res = await fetch(
+    `${THREADS_API_BASE}/${postId}/likes?access_token=${accessToken}`,
+    { method: "POST" }
+  );
   if (!res.ok) throw new Error("Failed to like post");
+  return res.json();
+}
+
+export async function unlikePost(accessToken: string, postId: string) {
+  const res = await fetch(
+    `${THREADS_API_BASE}/${postId}/likes?access_token=${accessToken}`,
+    { method: "DELETE" }
+  );
+  if (!res.ok) throw new Error("Failed to unlike post");
   return res.json();
 }
 

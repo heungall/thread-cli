@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { ThreadsPost } from "@/lib/threads-api";
 import ReplySection from "./ReplySection";
 
@@ -98,6 +101,31 @@ type Props = {
 
 export default function PostCard({ post, username }: Props) {
   const media = mediaLabel(post.media_type);
+  const [liked, setLiked] = useState(post.has_liked ?? false);
+  const [likeCount, setLikeCount] = useState(post.like_count ?? 0);
+  const [liking, setLiking] = useState(false);
+
+  async function toggleLike() {
+    if (liking) return;
+    setLiking(true);
+    // Optimistic UI
+    setLiked((prev) => !prev);
+    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+
+    try {
+      await fetch("/api/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: post.id, liked }),
+      });
+    } catch {
+      // 실패 시 롤백
+      setLiked((prev) => !prev);
+      setLikeCount((prev) => (liked ? prev + 1 : prev - 1));
+    } finally {
+      setLiking(false);
+    }
+  }
 
   return (
     <div className="terminal-card text-sm space-y-3">
@@ -127,9 +155,15 @@ export default function PostCard({ post, username }: Props) {
       <div className="border-t border-terminal-border" />
 
       {/* 카운터 */}
-      <div className="flex gap-6 text-terminal-muted text-xs">
-        <span>♡ {post.like_count ?? 0}</span>
-        <span>⟳ {post.repost_count ?? 0}</span>
+      <div className="flex gap-6 text-xs">
+        <button
+          onClick={toggleLike}
+          disabled={liking}
+          className={`transition-colors ${liked ? "text-terminal-red" : "text-terminal-muted hover:text-terminal-red"}`}
+        >
+          {liked ? "♥" : "♡"} {likeCount}
+        </button>
+        <span className="text-terminal-muted">⟳ {post.repost_count ?? 0}</span>
       </div>
 
       {/* 댓글 섹션 */}
