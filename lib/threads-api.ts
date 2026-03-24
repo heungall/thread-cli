@@ -161,6 +161,29 @@ export async function replyToPost(
   return publishRes.json() as Promise<{ id: string }>;
 }
 
+// ─── Replies ─────────────────────────────────────────────
+
+export type ThreadsReply = {
+  id: string;
+  text: string;
+  timestamp: string;
+  username: string;
+};
+
+export async function getPostReplies(
+  accessToken: string,
+  postId: string
+): Promise<{ data: ThreadsReply[] }> {
+  const fields = "id,text,timestamp,username";
+  const url = new URL(`${THREADS_API_BASE}/${postId}/replies`);
+  url.searchParams.set("fields", fields);
+  url.searchParams.set("access_token", accessToken);
+
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error("Failed to fetch replies");
+  return res.json();
+}
+
 // ─── Helpers ─────────────────────────────────────────────
 
 async function getMyUserId(accessToken: string): Promise<string> {

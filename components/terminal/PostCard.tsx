@@ -1,4 +1,5 @@
 import type { ThreadsPost } from "@/lib/threads-api";
+import ReplySection from "./ReplySection";
 
 function timeAgo(timestamp: string): string {
   const diff = Date.now() - new Date(timestamp).getTime();
@@ -128,9 +129,11 @@ export default function PostCard({ post, username }: Props) {
       {/* 카운터 */}
       <div className="flex gap-6 text-terminal-muted text-xs">
         <span>♡ {post.like_count ?? 0}</span>
-        <span>↩ {post.replies_count ?? 0}</span>
         <span>⟳ {post.repost_count ?? 0}</span>
       </div>
+
+      {/* 댓글 섹션 */}
+      <ReplySection postId={post.id} replyCount={post.replies_count ?? 0} />
     </div>
   );
 }
