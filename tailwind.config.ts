@@ -22,7 +22,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        mono: ["monospace", "Consolas", "Monaco"],
+        mono: ["D2Coding", "monospace"],
       },
     },
   },
