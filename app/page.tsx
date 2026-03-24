@@ -1,6 +1,10 @@
 import Link from "next/link";
 
-export default function Home() {
+export default function Home({
+  searchParams,
+}: {
+  searchParams: { error?: string };
+}) {
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <div className="terminal-card w-full max-w-lg">
@@ -24,6 +28,12 @@ export default function Home() {
             <span className="text-terminal-green">$</span> Threads 계정으로
             로그인하세요.
           </p>
+
+          {searchParams.error && (
+            <p className="text-terminal-red text-xs border border-terminal-red/30 px-3 py-2">
+              // error: {decodeURIComponent(searchParams.error)}
+            </p>
+          )}
 
           <Link
             href="/api/auth/login"

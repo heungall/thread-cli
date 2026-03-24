@@ -6,10 +6,13 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get("code");
   const error = searchParams.get("error");
+  const errorCode = searchParams.get("error_code");
+  const errorMessage = searchParams.get("error_message");
 
-  if (error || !code) {
+  if (error || errorCode || !code) {
+    const msg = errorMessage ?? error ?? "missing_code";
     return NextResponse.redirect(
-      new URL(`/?error=${error ?? "missing_code"}`, request.url)
+      new URL(`/?error=${encodeURIComponent(msg)}`, request.url)
     );
   }
 
