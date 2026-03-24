@@ -22,7 +22,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        mono: ["'JetBrains Mono'", "'Fira Code'", "Consolas", "monospace"],
+        mono: ["monospace", "Consolas", "Monaco"],
       },
     },
   },
