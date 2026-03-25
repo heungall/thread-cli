@@ -8,9 +8,12 @@ type Props = {
 export default function TerminalHeader({ username, section = "feed" }: Props) {
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-between">
+      {/* abap-titlebar 클래스: ABAP 테마에서 SAP 파란 타이틀바로 변환 */}
+      <div className="abap-titlebar flex items-center justify-between py-1">
         <div>
-          <span className="text-terminal-green font-bold">THREADS.TERMINAL</span>
+          <span className="text-terminal-green font-bold tracking-wide">
+            THREADS.TERMINAL
+          </span>
           <span className="text-terminal-muted text-sm ml-2">// {section}</span>
         </div>
         <div className="flex items-center gap-4 text-xs">

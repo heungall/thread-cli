@@ -31,16 +31,16 @@ html, html.theme-terminal {
 
 /* ── ABAP 테마 (SAP 에디터 스타일) ── */
 html.theme-abap {
-  --color-bg:      240 237 230;
+  --color-bg:      176 196 212;   /* 그레이 하늘색 */
   --color-surface: 255 255 255;
-  --color-border:  176 168 152;
+  --color-border:  128 128 128;
   --color-text:    0 0 0;
-  --color-muted:   90 90 90;
-  --color-green:   0 119 0;
-  --color-blue:    0 0 204;
+  --color-muted:   160 160 160;   /* 옅은 그레이 (코멘트) */
+  --color-green:   0 128 0;
+  --color-blue:    0 0 180;
   --color-yellow:  139 105 20;
-  --color-red:     204 0 0;
-  --color-cursor:  0 0 204;
+  --color-red:     180 0 0;
+  --color-cursor:  0 0 180;
 }
 
 /* ── 폰트 ── */
@@ -55,44 +55,105 @@ html.font-dunggeunmo  { --font-mono: 'DungGeunMo'; }
   body {
     @apply bg-terminal-bg text-terminal-text font-mono;
   }
-
-  ::selection {
-    @apply bg-terminal-blue/30;
-  }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-terminal-bg;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-terminal-border rounded;
-  }
+  ::selection          { @apply bg-terminal-blue/30; }
+  ::-webkit-scrollbar  { width: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-terminal-bg; }
+  ::-webkit-scrollbar-thumb { @apply bg-terminal-border rounded; }
 }
 
 @layer components {
-  .terminal-border {
-    @apply border border-terminal-border;
-  }
-
-  .terminal-card {
-    @apply bg-terminal-surface border border-terminal-border rounded-sm p-4;
-  }
-
-  .terminal-prompt::before {
-    content: '> ';
-    @apply text-terminal-green;
-  }
-
-  .cursor-blink {
-    animation: blink 1s step-end infinite;
-  }
+  .terminal-border { @apply border border-terminal-border; }
+  .terminal-card   { @apply bg-terminal-surface border border-terminal-border rounded-sm p-4; }
+  .terminal-prompt::before { content: '> '; @apply text-terminal-green; }
+  .cursor-blink    { animation: blink 1s step-end infinite; }
 }
 
 @keyframes blink {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  50%       { opacity: 0; }
+}
+
+/* ════════════════════════════════════════
+   ABAP 테마 컴포넌트 오버라이드
+   ════════════════════════════════════════ */
+
+html.theme-abap body {
+  background-color: #b0c4d4;
+}
+
+/* ── 타이틀바 (SAP 파란 그라디언트) ── */
+html.theme-abap .abap-titlebar {
+  background: linear-gradient(to bottom, #1565c0, #0d47a1);
+  color: #ffffff;
+  padding: 4px 10px;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  border-bottom: 2px solid #0a3880;
+}
+html.theme-abap .abap-titlebar span {
+  color: #ffffff !important;
+}
+html.theme-abap .abap-titlebar button {
+  color: #cce0ff !important;
+}
+html.theme-abap .abap-titlebar button:hover {
+  color: #ff6666 !important;
+}
+html.theme-abap .abap-titlebar select {
+  background: #1a5fad !important;
+  color: #ffffff !important;
+  border-color: #4d8fd4 #0a3880 #0a3880 #4d8fd4 !important;
+  box-shadow: none !important;
+}
+html.theme-abap .abap-titlebar select option {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* ── 카드 — Windows 클래식 raised panel ── */
+html.theme-abap .terminal-card {
+  background: #ffffff;
+  border-radius: 0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: 1px 1px 0 #404040, -1px -1px 0 #dfdfdf;
+  padding: 8px 10px;
+}
+
+/* ── 구분선 ── */
+html.theme-abap .border-t,
+html.theme-abap .border-terminal-border {
+  border-color: #b0b0b0 !important;
+}
+
+/* ── 셀렉트박스 (타이틀바 밖) — Windows 클래식 ── */
+html.theme-abap select {
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  background: #d4d0c8 !important;
+  color: #000000 !important;
+  border: 2px solid !important;
+  border-color: #ffffff #808080 #808080 #ffffff !important;
+  box-shadow: 1px 1px 0 #404040 !important;
+  border-radius: 0 !important;
+  font-family: 'Tahoma', 'Arial', sans-serif !important;
+  font-size: 11px !important;
+  padding: 1px 4px !important;
+  cursor: default !important;
+}
+
+/* ── 스크롤바 — Windows 클래식 ── */
+html.theme-abap ::-webkit-scrollbar        { width: 16px; background: #d4d0c8; }
+html.theme-abap ::-webkit-scrollbar-thumb  {
+  background: #d4d0c8;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  border-radius: 0;
+}
+html.theme-abap ::-webkit-scrollbar-button {
+  display: block;
+  background: #d4d0c8;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  height: 16px;
 }

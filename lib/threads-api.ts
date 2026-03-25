@@ -121,6 +121,7 @@ export async function getPostInsights(
 ): Promise<PostInsights> {
   const url = new URL(`${THREADS_API_BASE}/${postId}/insights`);
   url.searchParams.set("metric", "likes,replies,reposts,quotes");
+  url.searchParams.set("period", "lifetime");
   url.searchParams.set("access_token", accessToken);
 
   const res = await fetch(url.toString());
