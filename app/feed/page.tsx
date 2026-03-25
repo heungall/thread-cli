@@ -15,7 +15,7 @@ export default async function FeedPage() {
   if (!user) redirect("/");
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8">
+    <main className="w-full mx-auto" style={{ maxWidth: "800px", padding: "32px 16px" }}>
       <TerminalHeader username={user.username ?? "unknown"} section="feed" />
       <ComposeBox username={user.username ?? "unknown"} />
       <FeedList username={user.username ?? "unknown"} />

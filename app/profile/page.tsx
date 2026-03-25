@@ -16,7 +16,7 @@ export default async function ProfilePage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8">
+    <main className="w-full mx-auto" style={{ maxWidth: "800px", padding: "32px 16px" }}>
       <div className="mb-6">
         <span className="text-terminal-green font-bold">THREADS.TERMINAL</span>
         <span className="text-terminal-muted text-sm ml-2">// profile</span>

@@ -31,9 +31,9 @@ html, html.theme-terminal {
 
 /* ── ABAP 테마 (SAP 에디터 스타일) ── */
 html.theme-abap {
-  --color-bg:      176 196 212;   /* 그레이 하늘색 */
-  --color-surface: 255 255 255;
-  --color-border:  128 128 128;
+  --color-bg:      230 238 240;   /* #E6EEF0 */
+  --color-surface: 230 238 240;   /* 박스 없이 배경과 동일 */
+  --color-border:  160 176 184;
   --color-text:    0 0 0;
   --color-muted:   160 160 160;   /* 옅은 그레이 (코멘트) */
   --color-green:   0 128 0;
@@ -64,7 +64,7 @@ html.font-dunggeunmo  { --font-mono: 'DungGeunMo'; }
 
 @layer components {
   .terminal-border { @apply border border-terminal-border; }
-  .terminal-card   { @apply bg-terminal-surface border border-terminal-border rounded-sm p-4; }
+  .terminal-card   { @apply bg-terminal-surface border border-terminal-border rounded-sm; padding: 16px; }
   .terminal-prompt::before { content: '> '; @apply text-terminal-green; }
   .cursor-blink    { animation: blink 1s step-end infinite; }
 }
@@ -79,31 +79,31 @@ html.font-dunggeunmo  { --font-mono: 'DungGeunMo'; }
    ════════════════════════════════════════ */
 
 html.theme-abap body {
-  background-color: #b0c4d4;
+  background-color: #E6EEF0;
 }
 
-/* ── 타이틀바 (SAP 파란 그라디언트) ── */
+/* ── 타이틀바 (#B8CDE0) ── */
 html.theme-abap .abap-titlebar {
-  background: linear-gradient(to bottom, #1565c0, #0d47a1);
-  color: #ffffff;
+  background: #B8CDE0;
+  color: #1a3a5c;
   padding: 4px 10px;
   margin-bottom: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-  border-bottom: 2px solid #0a3880;
+  border-bottom: 1px solid #8aaabf;
+  box-shadow: none;
 }
 html.theme-abap .abap-titlebar span {
-  color: #ffffff !important;
+  color: #1a3a5c !important;
 }
 html.theme-abap .abap-titlebar button {
-  color: #cce0ff !important;
+  color: #1a3a5c !important;
 }
 html.theme-abap .abap-titlebar button:hover {
-  color: #ff6666 !important;
+  color: #cc0000 !important;
 }
 html.theme-abap .abap-titlebar select {
-  background: #1a5fad !important;
-  color: #ffffff !important;
-  border-color: #4d8fd4 #0a3880 #0a3880 #4d8fd4 !important;
+  background: #c8dce8 !important;
+  color: #1a3a5c !important;
+  border-color: #8aaabf !important;
   box-shadow: none !important;
 }
 html.theme-abap .abap-titlebar select option {
@@ -111,20 +111,20 @@ html.theme-abap .abap-titlebar select option {
   color: #000000;
 }
 
-/* ── 카드 — Windows 클래식 raised panel ── */
+/* ── 카드 — 박스 없이 하단 구분선만 ── */
 html.theme-abap .terminal-card {
-  background: #ffffff;
+  background: transparent;
+  border: none !important;
   border-radius: 0;
-  border: 2px solid;
-  border-color: #ffffff #808080 #808080 #ffffff;
-  box-shadow: 1px 1px 0 #404040, -1px -1px 0 #dfdfdf;
-  padding: 8px 10px;
+  box-shadow: none !important;
+  padding: 12px 0;
+  border-bottom: 1px solid #a0b8c4 !important;
 }
 
-/* ── 구분선 ── */
+/* ── 카드 내부 구분선 ── */
 html.theme-abap .border-t,
 html.theme-abap .border-terminal-border {
-  border-color: #b0b0b0 !important;
+  border-color: #a0b8c4 !important;
 }
 
 /* ── 셀렉트박스 (타이틀바 밖) — Windows 클래식 ── */
@@ -153,18 +153,10 @@ html.theme-abap .text-terminal-text {
   color: #808080 !important;
 }
 
-/* ── 스크롤바 — Windows 클래식 ── */
-html.theme-abap ::-webkit-scrollbar        { width: 16px; background: #d4d0c8; }
+/* ── 스크롤바 ── */
+html.theme-abap ::-webkit-scrollbar        { width: 8px; background: #c8d8e0; }
 html.theme-abap ::-webkit-scrollbar-thumb  {
-  background: #d4d0c8;
-  border: 2px solid;
-  border-color: #ffffff #808080 #808080 #ffffff;
-  border-radius: 0;
+  background: #8aaabf;
+  border-radius: 4px;
 }
-html.theme-abap ::-webkit-scrollbar-button {
-  display: block;
-  background: #d4d0c8;
-  border: 2px solid;
-  border-color: #ffffff #808080 #808080 #ffffff;
-  height: 16px;
-}
+html.theme-abap ::-webkit-scrollbar-button { display: none; }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 type Theme    = "terminal" | "abap";
 type Font     = "d2coding" | "dunggeunmo";
-type FontSize = "8" | "10" | "12";
+type FontSize = "8" | "10" | "12" | "14" | "16" | "18";
 
 const THEMES: { id: Theme; label: string }[] = [
   { id: "terminal", label: "Terminal" },
@@ -20,17 +20,20 @@ const SIZES: { id: FontSize; label: string }[] = [
   { id: "8",  label: "8px" },
   { id: "10", label: "10px" },
   { id: "12", label: "12px" },
+  { id: "14", label: "14px" },
+  { id: "16", label: "16px" },
+  { id: "18", label: "18px" },
 ];
 
 export default function Settings() {
   const [theme,    setTheme]    = useState<Theme>("terminal");
   const [font,     setFont]     = useState<Font>("d2coding");
-  const [fontSize, setFontSize] = useState<FontSize>("12");
+  const [fontSize, setFontSize] = useState<FontSize>("16");
 
   useEffect(() => {
     const savedTheme    = (localStorage.getItem("theme")     as Theme)    ?? "terminal";
     const savedFont     = (localStorage.getItem("font")      as Font)     ?? "d2coding";
-    const savedFontSize = (localStorage.getItem("fontSize")  as FontSize) ?? "12";
+    const savedFontSize = (localStorage.getItem("fontSize")  as FontSize) ?? "16";
     applyTheme(savedTheme);
     applyFont(savedFont);
     applyFontSize(savedFontSize);
