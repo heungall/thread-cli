@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-type Theme    = "terminal" | "abap";
+type Theme    = "terminal" | "abap" | "excel";
 type Font     = "d2coding" | "dunggeunmo";
 type FontSize = "8" | "10" | "12" | "14" | "16" | "18";
 
 const THEMES: { id: Theme; label: string }[] = [
   { id: "terminal", label: "Terminal" },
   { id: "abap",     label: "ABAP" },
+  { id: "excel",    label: "Excel" },
 ];
 
 const FONTS: { id: Font; label: string }[] = [
@@ -43,7 +44,7 @@ export default function Settings() {
   }, []);
 
   function applyTheme(t: Theme) {
-    document.documentElement.classList.remove("theme-terminal", "theme-abap");
+    document.documentElement.classList.remove("theme-terminal", "theme-abap", "theme-excel");
     document.documentElement.classList.add(`theme-${t}`);
     localStorage.setItem("theme", t);
   }

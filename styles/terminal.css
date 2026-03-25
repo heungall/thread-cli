@@ -43,6 +43,20 @@ html.theme-abap {
   --color-cursor:  0 0 180;
 }
 
+/* ── Excel 테마 ── */
+html.theme-excel {
+  --color-bg:      242 242 242;   /* #F2F2F2 워크시트 배경 */
+  --color-surface: 255 255 255;   /* #FFFFFF 셀 배경 */
+  --color-border:  217 217 217;   /* #D9D9D9 그리드 선 */
+  --color-text:    0 0 0;
+  --color-muted:   89 89 89;      /* #595959 */
+  --color-green:   33 115 70;     /* #217346 Excel 녹색 */
+  --color-blue:    31 73 125;     /* #1F497D Excel 파랑 */
+  --color-yellow:  255 192 0;     /* #FFC000 Excel 노랑 */
+  --color-red:     192 0 0;       /* #C00000 Excel 빨강 */
+  --color-cursor:  33 115 70;
+}
+
 /* ── 폰트 ── */
 html.font-d2coding    { --font-mono: 'D2Coding'; }
 html.font-dunggeunmo  { --font-mono: 'DungGeunMo'; }
@@ -148,10 +162,92 @@ html.theme-abap .text-terminal-text {
   color: #808080 !important;
 }
 
-/* ── 스크롤바 ── */
+/* ── ABAP 스크롤바 ── */
 html.theme-abap ::-webkit-scrollbar        { width: 8px; background: #c8d8e0; }
 html.theme-abap ::-webkit-scrollbar-thumb  {
   background: #8aaabf;
   border-radius: 4px;
 }
 html.theme-abap ::-webkit-scrollbar-button { display: none; }
+
+/* ════════════════════════════════════════
+   Excel 테마 컴포넌트 오버라이드
+   ════════════════════════════════════════ */
+
+html.theme-excel body {
+  background-color: #F2F2F2;
+  font-family: 'Calibri', 'Arial', sans-serif;
+}
+
+/* ── 타이틀바 — Excel 녹색 ── */
+html.theme-excel .abap-titlebar {
+  background: #217346;
+  color: #ffffff;
+  padding: 5px 10px;
+  margin-bottom: 6px;
+  border-bottom: 2px solid #185a30;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+html.theme-excel .abap-titlebar span {
+  color: #ffffff !important;
+}
+html.theme-excel .abap-titlebar button {
+  color: #c8f0d8 !important;
+}
+html.theme-excel .abap-titlebar button:hover {
+  color: #ffcccc !important;
+}
+html.theme-excel .abap-titlebar select {
+  background: #1a5c38 !important;
+  color: #ffffff !important;
+  border-color: #2e8b57 !important;
+  box-shadow: none !important;
+  font-family: 'Calibri', 'Arial', sans-serif !important;
+}
+html.theme-excel .abap-titlebar select option {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* ── 카드 — 셀 스타일 ── */
+html.theme-excel .terminal-card {
+  background: #ffffff !important;
+  border: 1px solid #D9D9D9 !important;
+  border-bottom: 1px solid #D9D9D9 !important;
+  padding: 10px 12px !important;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* ── 구분선 ── */
+html.theme-excel .border-t,
+html.theme-excel .border-terminal-border {
+  border-color: #D9D9D9 !important;
+}
+
+/* ── 게시글 본문 — 셀 텍스트 색상 ── */
+html.theme-excel .text-terminal-text {
+  color: #000000 !important;
+}
+
+/* ── 셀렉트박스 ── */
+html.theme-excel select {
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ababab !important;
+  border-radius: 2px !important;
+  font-family: 'Calibri', 'Arial', sans-serif !important;
+  font-size: 11px !important;
+  padding: 1px 4px !important;
+  box-shadow: none !important;
+}
+
+/* ── 스크롤바 ── */
+html.theme-excel ::-webkit-scrollbar        { width: 8px; background: #f2f2f2; }
+html.theme-excel ::-webkit-scrollbar-thumb  {
+  background: #c0c0c0;
+  border-radius: 4px;
+}
+html.theme-excel ::-webkit-scrollbar-button { display: none; }
