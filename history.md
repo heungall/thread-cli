@@ -70,48 +70,74 @@
 
 ---
 
-### 10. auth_failed (현재 미해결)
+### 10. auth_failed
 **에러:** 로그인 후 `// error: auth_failed` 표시
-**원인 추정:** Vercel 환경변수 미설정으로 token exchange 또는 Supabase 연결 실패
-**확인 방법:** Vercel → Deployments → Functions → `/auth/callback` 로그 확인
-**상태:** 조사 중
+**원인:** `tokenData.expires_in`이 `undefined` → `new Date(NaN).toISOString()` 에서 `RangeError` 발생
+**해결:** `expires_in` 없을 때 기본 60일로 fallback 처리
 
 ---
 
-## 지금 해야 할 것
+## Phase 2 — 피드 (2026-03-24)
 
-### 즉시 (auth_failed 해결)
-1. **Vercel 환경변수 확인**
-   - Vercel → Project → Settings → Environment Variables
-   - `.env.local`의 모든 값이 Vercel에도 동일하게 등록되어 있는지 확인
-   - 등록 후 반드시 Redeploy 필요
+### 구현 완료
+- `/api/feed/route.ts` — 세션 인증 후 Threads API 호출
+- `PostCard.tsx` — 줄바꿈 `0: "...", 1: "..."` 파싱, `#해시태그` 초록, `@멘션` 파란, 미디어 메타 표기
+- `FeedList.tsx` — 초기 로딩, `r` 키 새로고침, "load more" 커서 페이지네이션
+- `TerminalHeader.tsx` — 유저명 + logout 버튼
 
-2. **Vercel 함수 로그 확인**
-   - Vercel → Deployments → 최신 배포 → Functions 탭
-   - `/auth/callback` 호출 로그에서 실제 에러 메시지 확인
-
-3. **Supabase 스키마 확인**
-   - Supabase Dashboard → Table Editor
-   - `users`, `sessions` 테이블이 실제로 생성되어 있는지 확인
-   - 없으면 `supabase/schema.sql` 다시 실행
+### 트러블
+- **로그아웃 후 동일 계정 자동 재로그인** → `threads.net`으로 리다이렉트 (거기서 직접 로그아웃)
+- **로그아웃 POST 리다이렉트** → 303 상태코드 + cookie `expires: 0` 으로 명시적 만료
 
 ---
 
-### auth_failed 해결 후 — Phase 2
-- Threads API 피드 조회 (`/api/feed/route.ts`)
-- 터미널 스타일 PostCard 컴포넌트
-- FeedList 컴포넌트 (무한 스크롤)
-- `/feed` 페이지 완성
+## Phase 3 — 게시물 작성 (2026-03-24)
 
-### Phase 3
-- ComposeBox 컴포넌트 (Shift+Enter 줄바꿈, Enter 발행)
-- 게시물 발행 API Route
+### 구현 완료
+- `/api/post/route.ts` — Threads 2단계 발행 (create_media → publish)
+- `ComposeBox.tsx` — CLI 스타일 입력창
+  - `Enter` 발행 / `Shift+Enter` 줄바꿈
+  - 500자 카운터 (50자 이하 노란색, 초과 빨간색)
+  - `> publishing...` 로딩, 성공/실패 터미널 메시지
+  - 발행 성공 후 `router.refresh()`로 피드 새로고침
 
-### Phase 4
-- 좋아요 토글
-- 댓글 달기
+---
 
-### Phase 5
+## Phase 4 — 인터랙션 (2026-03-25)
+
+### 구현 완료
+- **댓글 (ReplySection.tsx)**
+  - `↩ N개 댓글 ▼` 클릭 → 댓글 목록 펼치기/접기
+  - 댓글 목록 조회 (`GET /api/reply?postId=`)
+  - 댓글 작성 (`POST /api/reply`) — Enter 발행, Shift+Enter 줄바꿈
+  - 발행 후 목록 낙관적 업데이트
+- **좋아요 토글 (PostCard)**
+  - `♡` / `♥` 토글, 클릭 시 빨간색
+  - Optimistic UI (즉시 반영, 실패 시 롤백)
+- **통계 (Insights)**
+  - `like_count` 등 post 직접 필드 미지원 확인 → Threads insights API 사용
+  - 기본 `—` 표시, `[stats ↓]` 클릭 시 `/api/insights?postId=` 호출
+  - 좋아요수 / 댓글수 / 리포스트수 표시
+
+---
+
+## 폰트 / 테마 (2026-03-25)
+
+### 폰트
+- JetBrains Mono (Google Fonts) 제거 → 시스템 폰트로 변경
+- **D2Coding** (네이버, 리가처 버전) + **둥근모** 셀프호스팅
+- 헤더 select box로 전환, localStorage 유지
+
+### 테마
+- CSS 변수 기반 테마 시스템 (`rgb()` 채널 분리로 opacity 수정자 지원)
+- **Terminal** — 다크 (GitHub 스타일)
+- **ABAP** — 라이트 (SAP 에디터 스타일: 흰 배경, 검정 텍스트, 파란 키워드, 초록 코멘트)
+- 헤더 select box로 전환, localStorage 유지
+
+---
+
+## 남은 작업 (Phase 5)
+
 - 반응형 대응 (375px+)
 - 에러 핸들링 정리
-- 프로덕션 배포
+- 프로덕션 배포 (앱 심사 후 rate limit 확대)

@@ -27,7 +27,7 @@ Threads를 사용하는 누구나 — 개발자 감성의 UI를 선호하는 사
 | 레이어 | 기술 | 비고 |
 |---|---|---|
 | Frontend | Next.js 14 (App Router) | TypeScript |
-| Styling | Tailwind CSS | 터미널 테마 커스텀 |
+| Styling | Tailwind CSS | Terminal / ABAP 테마, CSS 변수 기반 |
 | Backend | Next.js API Routes | 서버리스 |
 | Auth | Threads OAuth 2.0 | Meta 공식 API |
 | DB | Supabase (PostgreSQL) | 세션/유저 캐시용 |
@@ -35,13 +35,18 @@ Threads를 사용하는 누구나 — 개발자 감성의 UI를 선호하는 사
 
 ### 2.1 Threads API 주요 엔드포인트
 ```
-GET  /me/threads          → 내 게시물 피드
-GET  /me/replies          → 내 댓글
-POST /me/threads          → 게시물 작성 (2단계: create → publish)
-POST /threads/{id}/like   → 좋아요
-POST /threads/{id}/reply  → 댓글 달기
-GET  /threads/{id}?fields → 단일 게시물 조회
+GET  /me/threads              → 내 게시물 피드
+GET  /me/replies              → 내 댓글
+POST /me/threads              → 게시물 작성 (2단계: create → publish)
+POST /threads/{id}/likes      → 좋아요
+DELETE /threads/{id}/likes    → 좋아요 취소
+POST /threads/{id}/reply      → 댓글 달기
+GET  /threads/{id}/replies    → 댓글 목록
+GET  /threads/{id}/insights   → 통계 (likes, replies, reposts, quotes)
 ```
+
+> ⚠️ `like_count`, `replies_count`, `repost_count`는 post 직접 필드가 아님.
+> 통계는 `/{id}/insights?metric=likes,replies,reposts,quotes` 로 별도 조회 필요.
 
 ---
 
@@ -264,28 +269,33 @@ threads-terminal/
 ## 9. MVP 개발 순서
 
 ```
-Phase 1 — 기반
-  ├── Next.js 프로젝트 세팅 + Vercel 연결
+Phase 1 — 기반 ✅
+  ├── Next.js 14 프로젝트 세팅 + Vercel 연결 (GitHub CI/CD)
   ├── Supabase 세팅 + DB 스키마 적용
   └── Threads OAuth 로그인 구현
 
-Phase 2 — 피드
+Phase 2 — 피드 ✅
   ├── Threads API 클라이언트 구현
-  ├── 피드 조회 API Route
-  └── 터미널 스타일 PostCard 컴포넌트
+  ├── 피드 조회 API Route (커서 기반 페이지네이션)
+  └── 터미널 스타일 PostCard + FeedList 컴포넌트
 
-Phase 3 — 작성
-  ├── ComposeBox 컴포넌트 (Shift+Enter 줄바꿈)
-  └── 게시물 발행 API Route
+Phase 3 — 작성 ✅
+  ├── ComposeBox 컴포넌트 (Enter 발행, Shift+Enter 줄바꿈, 500자 카운터)
+  └── 게시물 발행 API Route (2단계: create → publish)
 
-Phase 4 — 인터랙션
-  ├── 좋아요 토글
-  └── 댓글 달기
+Phase 4 — 인터랙션 ✅
+  ├── 좋아요 토글 (Optimistic UI)
+  ├── 통계 (Insights API, 클릭 시 로드)
+  └── 댓글 목록 보기 + 댓글 달기 (ReplySection)
+
+Phase 4.5 — UI 커스터마이징 ✅ (추가)
+  ├── 폰트 선택 (D2Coding / 둥근모, localStorage 유지)
+  └── 테마 선택 (Terminal 다크 / ABAP 라이트, localStorage 유지)
 
 Phase 5 — 마무리
-  ├── 반응형 대응
+  ├── 반응형 대응 (375px+)
   ├── 에러 핸들링 정리
-  └── Vercel 프로덕션 배포
+  └── Vercel 프로덕션 배포 (앱 심사 후 rate limit 확대)
 ```
 
 ---
