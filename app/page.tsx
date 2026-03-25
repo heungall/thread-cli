@@ -1,4 +1,9 @@
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "THREADS.TERMINAL",
+};
 
 export default function Home({
   searchParams,
@@ -41,6 +46,21 @@ export default function Home({
           >
             LOGIN WITH THREADS ↗
           </Link>
+
+          <div className="border-t border-terminal-border" />
+
+          <div className="text-terminal-muted text-xs space-y-1">
+            <p className="text-terminal-yellow">// 사용 전 안내</p>
+            <p>· logout은 이 앱 세션만 종료합니다. Threads 계정 로그아웃은 <span className="text-terminal-blue">threads.net</span>에서 직접 하세요.</p>
+            <p>· 로그인 세션은 <span className="text-terminal-green">30일</span> 유지됩니다. 공용 PC에서는 사용 후 반드시 logout 하세요.</p>
+            <p>· 인증 토큰은 서버에 저장되지 않으며, 암호화된 쿠키로만 보관됩니다.</p>
+          </div>
+
+          <div className="flex gap-4 text-xs text-terminal-muted">
+            <Link href="/privacy" className="hover:text-terminal-blue transition-colors">개인정보처리방침</Link>
+            <Link href="/terms" className="hover:text-terminal-blue transition-colors">서비스 약관</Link>
+            <Link href="/data-deletion" className="hover:text-terminal-blue transition-colors">데이터 삭제</Link>
+          </div>
         </div>
       </div>
     </main>

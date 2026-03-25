@@ -1,4 +1,5 @@
 import Settings from "./Settings";
+import HelpPanel from "./HelpPanel";
 
 type Props = {
   username: string;
@@ -18,6 +19,7 @@ export default function TerminalHeader({ username, section = "feed" }: Props) {
         </div>
         <div className="flex items-center gap-4 text-xs">
           <Settings />
+          <HelpPanel />
           <span className="text-terminal-blue">@{username}</span>
           <form action="/api/auth/logout" method="POST">
             <button
