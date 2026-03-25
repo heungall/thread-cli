@@ -52,7 +52,7 @@ export default function Settings() {
   }
 
   function applyFontSize(s: FontSize) {
-    document.documentElement.style.setProperty("--font-size", `${s}px`);
+    document.documentElement.style.fontSize = `${s}px`;
     localStorage.setItem("fontSize", s);
   }
 

@@ -14,9 +14,6 @@
   font-display: swap;
 }
 
-/* ── 기본 폰트 크기 ── */
-html { --font-size: 12px; }
-
 /* ── 기본값 / Terminal 테마 (다크) ── */
 html, html.theme-terminal {
   --color-bg:      13 17 23;
@@ -144,6 +141,16 @@ html.theme-abap select {
   font-size: 11px !important;
   padding: 1px 4px !important;
   cursor: default !important;
+}
+
+/* ── 게시글 본문 — Terminal 코멘트 색상 (진한 파랑) ── */
+html.theme-terminal .text-terminal-text {
+  color: #4a8cc8 !important;
+}
+
+/* ── 게시글 본문 — ABAP 코멘트 색상 (회색) ── */
+html.theme-abap .text-terminal-text {
+  color: #808080 !important;
 }
 
 /* ── 스크롤바 — Windows 클래식 ── */
