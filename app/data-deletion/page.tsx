@@ -1,9 +1,11 @@
+import Link from "next/link";
+
 export default function DataDeletionPage() {
   return (
     <main className="w-full mx-auto" style={{ maxWidth: "800px", padding: "32px 16px" }}>
       <div className="space-y-6 text-sm">
         <div>
-          <span className="text-terminal-green font-bold text-lg">THREADS.TERMINAL</span>
+          <Link href="/" className="text-terminal-green font-bold text-lg hover:underline">THREADS.TERMINAL</Link>
           <span className="text-terminal-muted ml-2">// data deletion</span>
         </div>
 
