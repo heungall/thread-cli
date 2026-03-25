@@ -1,4 +1,6 @@
 import { createServiceClient, User, Session } from "./supabase";
+import { decryptToken } from "./token-crypto";
+import { NextRequest } from "next/server";
 import crypto from "crypto";
 
 type UpsertUserInput = {
@@ -6,8 +8,6 @@ type UpsertUserInput = {
   username: string;
   display_name: string;
   profile_pic_url: string;
-  access_token: string;
-  token_expires_at: string;
 };
 
 export async function upsertUser(input: UpsertUserInput): Promise<User> {
@@ -21,8 +21,6 @@ export async function upsertUser(input: UpsertUserInput): Promise<User> {
         username: input.username,
         display_name: input.display_name,
         profile_pic_url: input.profile_pic_url,
-        access_token: input.access_token,
-        token_expires_at: input.token_expires_at,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "threads_user_id" }
@@ -73,4 +71,15 @@ export async function getSessionUser(
 export async function deleteSession(sessionToken: string): Promise<void> {
   const db = createServiceClient();
   await db.from("sessions").delete().eq("session_token", sessionToken);
+}
+
+/** 요청 쿠키에서 암호화된 access_token을 복호화해 반환 */
+export function getAccessToken(request: NextRequest): string | null {
+  const encrypted = request.cookies.get("access_token")?.value;
+  if (!encrypted) return null;
+  try {
+    return decryptToken(encrypted);
+  } catch {
+    return null;
+  }
 }

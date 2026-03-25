@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, getAccessToken } from "@/lib/auth";
 import { likePost, unlikePost } from "@/lib/threads-api";
 
 export async function POST(request: NextRequest) {
@@ -9,14 +9,17 @@ export async function POST(request: NextRequest) {
   const user = await getSessionUser(sessionToken);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const accessToken = getAccessToken(request);
+  if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { postId, liked } = await request.json();
   if (!postId) return NextResponse.json({ error: "postId required" }, { status: 400 });
 
   try {
     if (liked) {
-      await unlikePost(user.access_token, postId);
+      await unlikePost(accessToken, postId);
     } else {
-      await likePost(user.access_token, postId);
+      await likePost(accessToken, postId);
     }
     return NextResponse.json({ success: true });
   } catch (err) {

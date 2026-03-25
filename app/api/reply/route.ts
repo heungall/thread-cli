@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, getAccessToken } from "@/lib/auth";
 import { replyToPost, getPostReplies } from "@/lib/threads-api";
 
-// 댓글 목록 조회
 export async function GET(request: NextRequest) {
   const sessionToken = request.cookies.get("session_token")?.value;
   if (!sessionToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -10,11 +9,14 @@ export async function GET(request: NextRequest) {
   const user = await getSessionUser(sessionToken);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const accessToken = getAccessToken(request);
+  if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const postId = request.nextUrl.searchParams.get("postId");
   if (!postId) return NextResponse.json({ error: "postId required" }, { status: 400 });
 
   try {
-    const result = await getPostReplies(user.access_token, postId);
+    const result = await getPostReplies(accessToken, postId);
     return NextResponse.json(result);
   } catch (err) {
     console.error("Reply fetch error:", err);
@@ -22,13 +24,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// 댓글 작성
 export async function POST(request: NextRequest) {
   const sessionToken = request.cookies.get("session_token")?.value;
   if (!sessionToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const user = await getSessionUser(sessionToken);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const accessToken = getAccessToken(request);
+  if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { postId, text } = await request.json();
 
@@ -41,7 +45,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const result = await replyToPost(user.access_token, postId, text.trim());
+    const result = await replyToPost(accessToken, postId, text.trim());
     return NextResponse.json({ success: true, id: result.id });
   } catch (err) {
     console.error("Reply post error:", err);

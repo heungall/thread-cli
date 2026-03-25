@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, getAccessToken } from "@/lib/auth";
 import { getPostInsights } from "@/lib/threads-api";
 
 export async function GET(request: NextRequest) {
@@ -9,11 +9,14 @@ export async function GET(request: NextRequest) {
   const user = await getSessionUser(sessionToken);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const accessToken = getAccessToken(request);
+  if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const postId = request.nextUrl.searchParams.get("postId");
   if (!postId) return NextResponse.json({ error: "postId required" }, { status: 400 });
 
   try {
-    const insights = await getPostInsights(user.access_token, postId);
+    const insights = await getPostInsights(accessToken, postId);
     return NextResponse.json(insights);
   } catch (err) {
     console.error("Insights error:", err);

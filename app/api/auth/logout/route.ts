@@ -8,14 +8,18 @@ export async function POST(request: NextRequest) {
     await deleteSession(sessionToken);
   }
 
-  // 세션 정리 후 Threads 사이트로 이동 (거기서 직접 로그아웃)
   const response = NextResponse.redirect("https://www.threads.net", { status: 303 });
-  response.cookies.set("session_token", "", {
+
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    expires: new Date(0), // 즉시 만료
+    sameSite: "lax" as const,
+    expires: new Date(0),
     path: "/",
-  });
+  };
+
+  response.cookies.set("session_token", "", cookieOptions);
+  response.cookies.set("access_token", "", cookieOptions);
+
   return response;
 }

@@ -15,8 +15,6 @@ export type User = {
   username: string | null;
   display_name: string | null;
   profile_pic_url: string | null;
-  access_token: string;
-  token_expires_at: string | null;
   created_at: string;
   updated_at: string;
 };

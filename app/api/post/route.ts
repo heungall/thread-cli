@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, getAccessToken } from "@/lib/auth";
 import { createPost } from "@/lib/threads-api";
 
 export async function POST(request: NextRequest) {
   const sessionToken = request.cookies.get("session_token")?.value;
-
-  if (!sessionToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!sessionToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const user = await getSessionUser(sessionToken);
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const accessToken = getAccessToken(request);
+  if (!accessToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { text } = await request.json();
 
@@ -25,7 +23,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const result = await createPost(user.access_token, text.trim());
+    const result = await createPost(accessToken, text.trim());
     return NextResponse.json({ success: true, id: result.id });
   } catch (err) {
     console.error("Post error:", err);
