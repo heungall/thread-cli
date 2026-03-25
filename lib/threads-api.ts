@@ -77,6 +77,31 @@ export async function getUserFeed(
   return res.json();
 }
 
+// ─── Helpers (internal) ──────────────────────────────────
+
+async function waitForContainer(
+  containerId: string,
+  accessToken: string,
+  maxAttempts = 10,
+  intervalMs = 2000
+): Promise<void> {
+  for (let i = 0; i < maxAttempts; i++) {
+    const res = await fetch(
+      `${THREADS_API_BASE}/${containerId}?fields=status,error_message&access_token=${accessToken}`
+    );
+    if (!res.ok) throw new Error("Failed to check container status");
+    const data = await res.json();
+
+    if (data.status === "FINISHED") return;
+    if (data.status === "ERROR") {
+      throw new Error(`Container error: ${data.error_message ?? "unknown"}`);
+    }
+    // IN_PROGRESS → 대기 후 재시도
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+  throw new Error("Container did not finish in time");
+}
+
 // ─── Compose ─────────────────────────────────────────────
 
 export async function createPost(accessToken: string, text: string) {
@@ -99,7 +124,10 @@ export async function createPost(accessToken: string, text: string) {
   }
   const { id: creationId } = await createRes.json();
 
-  // Step 2: publish
+  // Step 2: 컨테이너 처리 완료 대기
+  await waitForContainer(creationId, accessToken);
+
+  // Step 3: publish
   const publishRes = await fetch(
     `${THREADS_API_BASE}/${userId}/threads_publish`,
     {
@@ -192,6 +220,9 @@ export async function replyToPost(
     throw new Error(`Failed to create reply container: ${err}`);
   }
   const { id: creationId } = await createRes.json();
+
+  // 컨테이너 처리 완료 대기
+  await waitForContainer(creationId, accessToken);
 
   const publishRes = await fetch(
     `${THREADS_API_BASE}/${userId}/threads_publish`,
