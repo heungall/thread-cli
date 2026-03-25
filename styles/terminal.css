@@ -14,9 +14,38 @@
   font-display: swap;
 }
 
-/* 폰트 클래스 */
-html.font-d2coding * { font-family: 'D2Coding', monospace !important; }
-html.font-dunggeunmo * { font-family: 'DungGeunMo', monospace !important; }
+/* ── 기본값 / Terminal 테마 (다크) ── */
+html, html.theme-terminal {
+  --color-bg:      13 17 23;
+  --color-surface: 22 27 34;
+  --color-border:  48 54 61;
+  --color-text:    201 209 217;
+  --color-muted:   139 148 158;
+  --color-green:   63 185 80;
+  --color-blue:    88 166 255;
+  --color-yellow:  210 153 34;
+  --color-red:     248 81 73;
+  --color-cursor:  88 166 255;
+  --font-mono:     'D2Coding';
+}
+
+/* ── ABAP 테마 (SAP 에디터 스타일) ── */
+html.theme-abap {
+  --color-bg:      240 237 230;
+  --color-surface: 255 255 255;
+  --color-border:  176 168 152;
+  --color-text:    0 0 0;
+  --color-muted:   90 90 90;
+  --color-green:   0 119 0;
+  --color-blue:    0 0 204;
+  --color-yellow:  139 105 20;
+  --color-red:     204 0 0;
+  --color-cursor:  0 0 204;
+}
+
+/* ── 폰트 ── */
+html.font-d2coding    { --font-mono: 'D2Coding'; }
+html.font-dunggeunmo  { --font-mono: 'DungGeunMo'; }
 
 @tailwind base;
 @tailwind components;

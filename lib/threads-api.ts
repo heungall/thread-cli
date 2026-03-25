@@ -53,17 +53,20 @@ export type ThreadsPost = {
   timestamp: string;
   media_type: string;
   permalink: string;
-  like_count?: number;
-  replies_count?: number;
-  repost_count?: number;
-  has_liked?: boolean;
+};
+
+export type PostInsights = {
+  likes: number;
+  replies: number;
+  reposts: number;
+  quotes: number;
 };
 
 export async function getUserFeed(
   accessToken: string,
   cursor?: string
 ): Promise<{ data: ThreadsPost[]; paging?: { cursors?: { after?: string } } }> {
-  const fields = "id,text,timestamp,media_type,permalink,like_count,replies_count,repost_count,has_liked";
+  const fields = "id,text,timestamp,media_type,permalink";
   const url = new URL(`${THREADS_API_BASE}/me/threads`);
   url.searchParams.set("fields", fields);
   url.searchParams.set("access_token", accessToken);
@@ -108,6 +111,33 @@ export async function createPost(accessToken: string, text: string) {
 
   if (!publishRes.ok) throw new Error("Failed to publish post");
   return publishRes.json() as Promise<{ id: string }>;
+}
+
+// ─── Insights ────────────────────────────────────────────
+
+export async function getPostInsights(
+  accessToken: string,
+  postId: string
+): Promise<PostInsights> {
+  const url = new URL(`${THREADS_API_BASE}/${postId}/insights`);
+  url.searchParams.set("metric", "likes,replies,reposts,quotes");
+  url.searchParams.set("access_token", accessToken);
+
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error("Failed to fetch insights");
+
+  const json = await res.json();
+  const result: PostInsights = { likes: 0, replies: 0, reposts: 0, quotes: 0 };
+
+  for (const item of json.data ?? []) {
+    const val = item.total_value?.value ?? item.values?.[0]?.value ?? 0;
+    if (item.name === "likes") result.likes = val;
+    else if (item.name === "replies") result.replies = val;
+    else if (item.name === "reposts") result.reposts = val;
+    else if (item.name === "quotes") result.quotes = val;
+  }
+
+  return result;
 }
 
 // ─── Like ────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ThreadsPost } from "@/lib/threads-api";
+import type { ThreadsPost, PostInsights } from "@/lib/threads-api";
 import ReplySection from "./ReplySection";
 
 function timeAgo(timestamp: string): string {
@@ -101,27 +101,44 @@ type Props = {
 
 export default function PostCard({ post, username }: Props) {
   const media = mediaLabel(post.media_type);
-  const [liked, setLiked] = useState(post.has_liked ?? false);
-  const [likeCount, setLikeCount] = useState(post.like_count ?? 0);
+  const [insights, setInsights] = useState<PostInsights | null>(null);
+  const [loadingInsights, setLoadingInsights] = useState(false);
+  const [liked, setLiked] = useState(false);
   const [liking, setLiking] = useState(false);
+
+  async function loadInsights() {
+    if (insights || loadingInsights) return;
+    setLoadingInsights(true);
+    try {
+      const res = await fetch(`/api/insights?postId=${post.id}`);
+      if (res.ok) {
+        const data: PostInsights = await res.json();
+        setInsights(data);
+      }
+    } finally {
+      setLoadingInsights(false);
+    }
+  }
 
   async function toggleLike() {
     if (liking) return;
     setLiking(true);
-    // Optimistic UI
-    setLiked((prev) => !prev);
-    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
-
+    const prevLiked = liked;
+    setLiked(!prevLiked);
+    if (insights) {
+      setInsights({ ...insights, likes: insights.likes + (prevLiked ? -1 : 1) });
+    }
     try {
       await fetch("/api/like", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId: post.id, liked }),
+        body: JSON.stringify({ postId: post.id, liked: prevLiked }),
       });
     } catch {
-      // 실패 시 롤백
-      setLiked((prev) => !prev);
-      setLikeCount((prev) => (liked ? prev + 1 : prev - 1));
+      setLiked(prevLiked);
+      if (insights) {
+        setInsights({ ...insights, likes: insights.likes + (prevLiked ? 1 : -1) });
+      }
     } finally {
       setLiking(false);
     }
@@ -155,19 +172,33 @@ export default function PostCard({ post, username }: Props) {
       <div className="border-t border-terminal-border" />
 
       {/* 카운터 */}
-      <div className="flex gap-6 text-xs">
+      <div className="flex items-center gap-4 text-xs">
         <button
           onClick={toggleLike}
           disabled={liking}
           className={`transition-colors ${liked ? "text-terminal-red" : "text-terminal-muted hover:text-terminal-red"}`}
         >
-          {liked ? "♥" : "♡"} {likeCount}
+          {liked ? "♥" : "♡"} {insights ? insights.likes : "—"}
         </button>
-        <span className="text-terminal-muted">⟳ {post.repost_count ?? 0}</span>
+        <span className="text-terminal-muted">
+          ↩ {insights ? insights.replies : "—"}
+        </span>
+        <span className="text-terminal-muted">
+          ⟳ {insights ? insights.reposts : "—"}
+        </span>
+        {!insights && (
+          <button
+            onClick={loadInsights}
+            disabled={loadingInsights}
+            className="text-terminal-border hover:text-terminal-muted transition-colors ml-auto"
+          >
+            {loadingInsights ? "..." : "[stats ↓]"}
+          </button>
+        )}
       </div>
 
       {/* 댓글 섹션 */}
-      <ReplySection postId={post.id} replyCount={post.replies_count ?? 0} />
+      <ReplySection postId={post.id} replyCount={insights?.replies ?? 0} />
     </div>
   );
 }

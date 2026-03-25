@@ -1,4 +1,4 @@
-import FontToggle from "./FontToggle";
+import Settings from "./Settings";
 
 type Props = {
   username: string;
@@ -14,7 +14,7 @@ export default function TerminalHeader({ username, section = "feed" }: Props) {
           <span className="text-terminal-muted text-sm ml-2">// {section}</span>
         </div>
         <div className="flex items-center gap-4 text-xs">
-          <FontToggle />
+          <Settings />
           <span className="text-terminal-blue">@{username}</span>
           <form action="/api/auth/logout" method="POST">
             <button
