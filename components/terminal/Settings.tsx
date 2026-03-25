@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-type Theme = "terminal" | "abap";
-type Font  = "d2coding" | "dunggeunmo";
+type Theme    = "terminal" | "abap";
+type Font     = "d2coding" | "dunggeunmo";
+type FontSize = "8" | "10" | "12";
 
 const THEMES: { id: Theme; label: string }[] = [
   { id: "terminal", label: "Terminal" },
@@ -11,21 +12,31 @@ const THEMES: { id: Theme; label: string }[] = [
 ];
 
 const FONTS: { id: Font; label: string }[] = [
-  { id: "d2coding",    label: "D2Coding" },
-  { id: "dunggeunmo",  label: "둥근모" },
+  { id: "d2coding",   label: "D2Coding" },
+  { id: "dunggeunmo", label: "둥근모" },
+];
+
+const SIZES: { id: FontSize; label: string }[] = [
+  { id: "8",  label: "8px" },
+  { id: "10", label: "10px" },
+  { id: "12", label: "12px" },
 ];
 
 export default function Settings() {
-  const [theme, setTheme] = useState<Theme>("terminal");
-  const [font,  setFont]  = useState<Font>("d2coding");
+  const [theme,    setTheme]    = useState<Theme>("terminal");
+  const [font,     setFont]     = useState<Font>("d2coding");
+  const [fontSize, setFontSize] = useState<FontSize>("12");
 
   useEffect(() => {
-    const savedTheme = (localStorage.getItem("theme") as Theme) ?? "terminal";
-    const savedFont  = (localStorage.getItem("font")  as Font)  ?? "d2coding";
+    const savedTheme    = (localStorage.getItem("theme")     as Theme)    ?? "terminal";
+    const savedFont     = (localStorage.getItem("font")      as Font)     ?? "d2coding";
+    const savedFontSize = (localStorage.getItem("fontSize")  as FontSize) ?? "12";
     applyTheme(savedTheme);
     applyFont(savedFont);
+    applyFontSize(savedFontSize);
     setTheme(savedTheme);
     setFont(savedFont);
+    setFontSize(savedFontSize);
   }, []);
 
   function applyTheme(t: Theme) {
@@ -40,16 +51,9 @@ export default function Settings() {
     localStorage.setItem("font", f);
   }
 
-  function onThemeChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const val = e.target.value as Theme;
-    applyTheme(val);
-    setTheme(val);
-  }
-
-  function onFontChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const val = e.target.value as Font;
-    applyFont(val);
-    setFont(val);
+  function applyFontSize(s: FontSize) {
+    document.documentElement.style.setProperty("--font-size", `${s}px`);
+    localStorage.setItem("fontSize", s);
   }
 
   const selectClass =
@@ -57,15 +61,14 @@ export default function Settings() {
 
   return (
     <div className="flex items-center gap-2 text-xs">
-      <select value={theme} onChange={onThemeChange} className={selectClass}>
-        {THEMES.map((t) => (
-          <option key={t.id} value={t.id}>{t.label}</option>
-        ))}
+      <select value={theme} onChange={(e) => { applyTheme(e.target.value as Theme); setTheme(e.target.value as Theme); }} className={selectClass}>
+        {THEMES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
       </select>
-      <select value={font} onChange={onFontChange} className={selectClass}>
-        {FONTS.map((f) => (
-          <option key={f.id} value={f.id}>{f.label}</option>
-        ))}
+      <select value={font} onChange={(e) => { applyFont(e.target.value as Font); setFont(e.target.value as Font); }} className={selectClass}>
+        {FONTS.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
+      </select>
+      <select value={fontSize} onChange={(e) => { applyFontSize(e.target.value as FontSize); setFontSize(e.target.value as FontSize); }} className={selectClass}>
+        {SIZES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
       </select>
     </div>
   );
