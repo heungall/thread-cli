@@ -93,7 +93,10 @@ export async function createPost(accessToken: string, text: string) {
     }),
   });
 
-  if (!createRes.ok) throw new Error("Failed to create post container");
+  if (!createRes.ok) {
+    const err = await createRes.text();
+    throw new Error(`Failed to create post container: ${err}`);
+  }
   const { id: creationId } = await createRes.json();
 
   // Step 2: publish
@@ -109,7 +112,10 @@ export async function createPost(accessToken: string, text: string) {
     }
   );
 
-  if (!publishRes.ok) throw new Error("Failed to publish post");
+  if (!publishRes.ok) {
+    const err = await publishRes.text();
+    throw new Error(`Failed to publish post: ${err}`);
+  }
   return publishRes.json() as Promise<{ id: string }>;
 }
 
@@ -181,7 +187,10 @@ export async function replyToPost(
     }),
   });
 
-  if (!createRes.ok) throw new Error("Failed to create reply container");
+  if (!createRes.ok) {
+    const err = await createRes.text();
+    throw new Error(`Failed to create reply container: ${err}`);
+  }
   const { id: creationId } = await createRes.json();
 
   const publishRes = await fetch(
@@ -196,7 +205,10 @@ export async function replyToPost(
     }
   );
 
-  if (!publishRes.ok) throw new Error("Failed to publish reply");
+  if (!publishRes.ok) {
+    const err = await publishRes.text();
+    throw new Error(`Failed to publish reply: ${err}`);
+  }
   return publishRes.json() as Promise<{ id: string }>;
 }
 
