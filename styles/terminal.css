@@ -64,7 +64,7 @@ html.font-dunggeunmo  { --font-mono: 'DungGeunMo'; }
 
 @layer components {
   .terminal-border { @apply border border-terminal-border; }
-  .terminal-card   { @apply bg-terminal-surface border border-terminal-border rounded-sm; padding: 16px; }
+  .terminal-card   { background: transparent; border: none; border-radius: 0; padding: 12px 0; border-bottom: 1px solid rgb(var(--color-border)); }
   .terminal-prompt::before { content: '> '; @apply text-terminal-green; }
   .cursor-blink    { animation: blink 1s step-end infinite; }
 }
@@ -111,14 +111,9 @@ html.theme-abap .abap-titlebar select option {
   color: #000000;
 }
 
-/* ── 카드 — 박스 없이 하단 구분선만 ── */
+/* ── 카드 — ABAP 구분선 색상 오버라이드 ── */
 html.theme-abap .terminal-card {
-  background: transparent;
-  border: none !important;
-  border-radius: 0;
-  box-shadow: none !important;
-  padding: 12px 0;
-  border-bottom: 1px solid #a0b8c4 !important;
+  border-bottom-color: #a0b8c4 !important;
 }
 
 /* ── 카드 내부 구분선 ── */
