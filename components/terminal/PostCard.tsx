@@ -97,14 +97,31 @@ function mediaLabel(mediaType: string): string | null {
 type Props = {
   post: ThreadsPost;
   username: string;
+  onDelete?: (postId: string) => void;
 };
 
-export default function PostCard({ post, username }: Props) {
+export default function PostCard({ post, username, onDelete }: Props) {
   const media = mediaLabel(post.media_type);
   const [insights, setInsights] = useState<PostInsights | null>(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
   const [liked, setLiked] = useState(false);
   const [liking, setLiking] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/post?id=${post.id}`, { method: "DELETE" });
+      if (res.ok) {
+        onDelete?.(post.id);
+      }
+    } catch {
+      // silent fail
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   async function loadInsights() {
     if (insights || loadingInsights) return;
@@ -147,10 +164,19 @@ export default function PostCard({ post, username }: Props) {
   return (
     <div className="terminal-card text-sm space-y-3">
       {/* 헤더 */}
-      <div className="text-terminal-muted text-xs">
-        <span className="text-terminal-blue">// @{username}</span>
-        <span className="mx-2">·</span>
-        <span>{timeAgo(post.timestamp)}</span>
+      <div className="text-terminal-muted text-xs flex items-center justify-between">
+        <div>
+          <span className="text-terminal-blue">// @{username}</span>
+          <span className="mx-2">·</span>
+          <span>{timeAgo(post.timestamp)}</span>
+        </div>
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          className="text-terminal-muted hover:text-terminal-red transition-colors disabled:opacity-50"
+        >
+          {deleting ? "..." : "[x]"}
+        </button>
       </div>
 
       <div className="border-t border-terminal-border" />
@@ -229,7 +255,7 @@ export default function PostCard({ post, username }: Props) {
       </div>
 
       {/* 댓글 섹션 */}
-      <ReplySection postId={post.id} replyCount={insights?.replies ?? 0} />
+      <ReplySection postId={post.id} replyCount={insights?.replies ?? 0} currentUsername={username} />
     </div>
   );
 }
