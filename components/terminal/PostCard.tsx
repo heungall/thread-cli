@@ -178,6 +178,21 @@ export default function PostCard({ post, username }: Props) {
         )}
       </div>
 
+      {/* 인용 표기 */}
+      {post.is_quote_post && (
+        <div className="text-terminal-muted text-xs">
+          // quote —{" "}
+          <a
+            href={post.permalink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-terminal-blue hover:underline"
+          >
+            인용 원본 보기 ↗
+          </a>
+        </div>
+      )}
+
       {/* 미디어 표기 */}
       {media && (
         <div className="text-terminal-muted text-xs">

@@ -53,6 +53,7 @@ export type ThreadsPost = {
   timestamp: string;
   media_type: string;
   permalink: string;
+  is_quote_post?: boolean;
 };
 
 export type PostInsights = {
@@ -66,7 +67,7 @@ export async function getUserFeed(
   accessToken: string,
   cursor?: string
 ): Promise<{ data: ThreadsPost[]; paging?: { cursors?: { after?: string } } }> {
-  const fields = "id,text,timestamp,media_type,permalink";
+  const fields = "id,text,timestamp,media_type,permalink,is_quote_post";
   const url = new URL(`${THREADS_API_BASE}/me/threads`);
   url.searchParams.set("fields", fields);
   url.searchParams.set("access_token", accessToken);
@@ -87,7 +88,8 @@ async function waitForContainer(
 ): Promise<void> {
   for (let i = 0; i < maxAttempts; i++) {
     const res = await fetch(
-      `${THREADS_API_BASE}/${containerId}?fields=status,error_message&access_token=${accessToken}`
+      `${THREADS_API_BASE}/${containerId}?fields=status,error_message&access_token=${accessToken}`,
+      { cache: "no-store" }
     );
     if (!res.ok) throw new Error("Failed to check container status");
     const data = await res.json();
