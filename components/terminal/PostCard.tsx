@@ -157,7 +157,23 @@ export default function PostCard({ post, username }: Props) {
 
       {/* 본문 */}
       <div className="text-terminal-text leading-relaxed font-mono">
-        {post.text ? parseText(post.text) : (
+        {post.text ? parseText(post.text) : post.media_type === "REPOST_FACADE" ? (
+          <div className="text-terminal-muted text-xs space-y-1">
+            <span>// repost</span>
+            {post.permalink && (
+              <div>
+                <a
+                  href={post.permalink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-terminal-blue hover:underline"
+                >
+                  원본 보기 ↗
+                </a>
+              </div>
+            )}
+          </div>
+        ) : (
           <span className="text-terminal-muted italic">// (empty)</span>
         )}
       </div>
