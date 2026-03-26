@@ -1,22 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import crypto from "crypto";
 
-// Meta가 유저가 앱 연결 해제 시 호출하는 엔드포인트
+function verifySignedRequest(signedRequest: string, appSecret: string): string | null {
+  const [encodedSig, payload] = signedRequest.split(".", 2);
+  if (!encodedSig || !payload) return null;
+
+  const sig = Buffer.from(encodedSig.replace(/-/g, "+").replace(/_/g, "/"), "base64");
+  const expected = crypto.createHmac("sha256", appSecret).update(payload).digest();
+
+  if (!crypto.timingSafeEqual(sig, expected)) return null;
+
+  try {
+    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf8"));
+    return decoded.user_id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const threadsUserId = body?.user_id;
+    const signedRequest = body?.signed_request;
+    const appSecret = process.env.THREADS_APP_SECRET;
+
+    let threadsUserId: string | null = null;
+
+    if (signedRequest && appSecret) {
+      threadsUserId = verifySignedRequest(signedRequest, appSecret);
+    } else {
+      threadsUserId = body?.user_id;
+    }
 
     if (threadsUserId) {
       const db = createServiceClient();
-      await db.from("sessions")
-        .delete()
-        .eq("user_id", db.from("users").select("id").eq("threads_user_id", threadsUserId));
-      await db.from("users").delete().eq("threads_user_id", threadsUserId);
+      // 먼저 user ID 조회 후 세션 삭제
+      const { data: user } = await db
+        .from("users")
+        .select("id")
+        .eq("threads_user_id", threadsUserId)
+        .single();
+
+      if (user) {
+        await db.from("sessions").delete().eq("user_id", user.id);
+        await db.from("users").delete().eq("threads_user_id", threadsUserId);
+      }
     }
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "unknown";
+    console.error("Deauthorize error:", message);
     return NextResponse.json({ success: true });
   }
 }

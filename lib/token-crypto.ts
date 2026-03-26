@@ -21,6 +21,7 @@ export function encryptToken(token: string): string {
 export function decryptToken(data: string): string {
   const key = getKey();
   const buf = Buffer.from(data, "base64url");
+  if (buf.length < 29) throw new Error("Invalid token data");
   const iv = buf.subarray(0, 12);
   const authTag = buf.subarray(12, 28);
   const encrypted = buf.subarray(28);

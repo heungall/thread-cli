@@ -70,17 +70,24 @@ function highlightLine(line: string): React.ReactNode[] {
       );
     }
     if (/^https?:\/\//.test(part)) {
-      return (
-        <a
-          key={i}
-          href={part}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-terminal-blue underline"
-        >
-          {part}
-        </a>
-      );
+      try {
+        const url = new URL(part);
+        if (url.protocol === "http:" || url.protocol === "https:") {
+          return (
+            <a
+              key={i}
+              href={url.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-terminal-blue underline"
+            >
+              {part}
+            </a>
+          );
+        }
+      } catch {
+        // invalid URL — render as plain text
+      }
     }
     return <span key={i}>{part}</span>;
   });

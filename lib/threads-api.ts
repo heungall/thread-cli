@@ -20,7 +20,8 @@ export async function exchangeCodeForToken(code: string) {
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Token exchange failed: ${err}`);
+    console.error("Token exchange error:", err);
+    throw new Error("Token exchange failed");
   }
 
   return res.json() as Promise<{
@@ -122,7 +123,8 @@ export async function createPost(accessToken: string, text: string) {
 
   if (!createRes.ok) {
     const err = await createRes.text();
-    throw new Error(`Failed to create post container: ${err}`);
+    console.error("Create post container error:", err);
+    throw new Error("Failed to create post container");
   }
   const { id: creationId } = await createRes.json();
 
@@ -144,7 +146,8 @@ export async function createPost(accessToken: string, text: string) {
 
   if (!publishRes.ok) {
     const err = await publishRes.text();
-    throw new Error(`Failed to publish post: ${err}`);
+    console.error("Publish post error:", err);
+    throw new Error("Failed to publish post");
   }
   return publishRes.json() as Promise<{ id: string }>;
 }
@@ -219,7 +222,8 @@ export async function replyToPost(
 
   if (!createRes.ok) {
     const err = await createRes.text();
-    throw new Error(`Failed to create reply container: ${err}`);
+    console.error("Create reply container error:", err);
+    throw new Error("Failed to create reply container");
   }
   const { id: creationId } = await createRes.json();
 
@@ -240,7 +244,8 @@ export async function replyToPost(
 
   if (!publishRes.ok) {
     const err = await publishRes.text();
-    throw new Error(`Failed to publish reply: ${err}`);
+    console.error("Publish reply error:", err);
+    throw new Error("Failed to publish reply");
   }
   return publishRes.json() as Promise<{ id: string }>;
 }

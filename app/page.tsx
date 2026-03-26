@@ -36,7 +36,13 @@ export default function Home({
 
           {searchParams.error && (
             <p className="text-terminal-red text-xs border border-terminal-red/30 px-3 py-2">
-              // error: {decodeURIComponent(searchParams.error)}
+              // error: {
+                {
+                  auth_failed: "인증에 실패했습니다.",
+                  missing_code: "인증 코드가 없습니다.",
+                  invalid_state: "잘못된 요청입니다. 다시 시도해주세요.",
+                }[searchParams.error] ?? "오류가 발생했습니다."
+              }
             </p>
           )}
 

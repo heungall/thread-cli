@@ -17,14 +17,19 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  try {
-    // 1. code → access_token 교환
-    const tokenData = await exchangeCodeForToken(code);
+  // OAuth state 검증 (CSRF 방지)
+  const state = searchParams.get("state");
+  const savedState = request.cookies.get("oauth_state")?.value;
+  if (!state || !savedState || state !== savedState) {
+    return NextResponse.redirect(
+      new URL("/?error=invalid_state", request.url)
+    );
+  }
 
-    // 2. Threads 유저 프로필 조회
+  try {
+    const tokenData = await exchangeCodeForToken(code);
     const profile = await getThreadsUserProfile(tokenData.access_token);
 
-    // 3. Supabase에 유저 upsert (토큰 저장 안 함)
     const user = await upsertUser({
       threads_user_id: profile.id,
       username: profile.username,
@@ -36,9 +41,8 @@ export async function GET(request: NextRequest) {
 
     const tokenExpiry = tokenData.expires_in
       ? new Date(Date.now() + tokenData.expires_in * 1000)
-      : new Date(Date.now() + 60 * 24 * 60 * 60 * 1000); // 기본 60일
+      : new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
 
-    // 4. 세션 쿠키 + 암호화된 토큰 쿠키 설정
     const response = NextResponse.redirect(new URL("/feed", request.url));
 
     response.cookies.set("session_token", session.session_token, {
@@ -57,9 +61,19 @@ export async function GET(request: NextRequest) {
       path: "/",
     });
 
+    // oauth_state 쿠키 삭제
+    response.cookies.set("oauth_state", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      expires: new Date(0),
+      path: "/",
+    });
+
     return response;
   } catch (err) {
-    console.error("OAuth callback error:", err);
+    const message = err instanceof Error ? err.message : "unknown";
+    console.error("OAuth callback error:", message);
     return NextResponse.redirect(new URL("/?error=auth_failed", request.url));
   }
 }

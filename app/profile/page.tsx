@@ -44,7 +44,7 @@ export default async function ProfilePage() {
           <p>
             <span className="text-terminal-green">$</span>{" "}
             <a
-              href={`https://www.threads.net/@${user.username}`}
+              href={`https://www.threads.net/@${encodeURIComponent(user.username ?? "")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-terminal-blue hover:underline"
