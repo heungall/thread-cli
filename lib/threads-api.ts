@@ -197,20 +197,6 @@ export async function unlikePost(accessToken: string, postId: string) {
   return res.json();
 }
 
-// ─── Delete ─────────────────────────────────────────────
-
-export async function deleteMedia(accessToken: string, mediaId: string) {
-  const res = await fetch(
-    `${THREADS_API_BASE}/${mediaId}?access_token=${accessToken}`,
-    { method: "DELETE" }
-  );
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Failed to delete media: ${err}`);
-  }
-  return res.json();
-}
-
 // ─── Reply ───────────────────────────────────────────────
 
 export async function replyToPost(

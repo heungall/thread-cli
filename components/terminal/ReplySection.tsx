@@ -23,13 +23,9 @@ type Status =
 function ReplyItem({
   reply,
   depth,
-  currentUsername,
-  onDelete,
 }: {
   reply: ThreadsReply;
   depth: number;
-  currentUsername: string;
-  onDelete?: (replyId: string) => void;
 }) {
   const [subOpen, setSubOpen] = useState(false);
   const [subReplies, setSubReplies] = useState<ThreadsReply[] | null>(null);
@@ -37,30 +33,6 @@ function ReplyItem({
   const [replyOpen, setReplyOpen] = useState(false);
   const [text, setText] = useState("");
   const [status, setStatus] = useState<Status>({ type: "idle" });
-  const [deleted, setDeleted] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const isMine = reply.username === currentUsername || reply.username === "me";
-
-  async function handleDelete() {
-    if (!confirm("댓글을 삭제하시겠습니까?")) return;
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/post?id=${reply.id}`, { method: "DELETE" });
-      if (res.ok) {
-        setDeleted(true);
-        onDelete?.(reply.id);
-      } else {
-        const data = await res.json();
-        alert(`삭제 실패: ${data.error ?? res.status}`);
-      }
-    } catch (err) {
-      alert(`삭제 실패: 네트워크 오류`);
-    } finally {
-      setDeleting(false);
-    }
-  }
-
-  if (deleted) return null;
 
   async function loadSubReplies() {
     if (subReplies !== null) return;
@@ -157,18 +129,6 @@ function ReplyItem({
             </button>
           </>
         )}
-        {isMine && (
-          <>
-            <span className="mx-1">·</span>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="hover:text-terminal-red transition-colors disabled:opacity-50"
-            >
-              {deleting ? "..." : "[x]"}
-            </button>
-          </>
-        )}
       </div>
       <div className="text-terminal-text" style={{ paddingLeft: `${depth * 12}px` }}>{reply.text}</div>
 
@@ -210,13 +170,7 @@ function ReplyItem({
           )}
           {subReplies &&
             subReplies.map((sub) => (
-              <ReplyItem
-                key={sub.id}
-                reply={sub}
-                depth={depth + 1}
-                currentUsername={currentUsername}
-                onDelete={(id) => setSubReplies((prev) => prev?.filter((r) => r.id !== id) ?? null)}
-              />
+              <ReplyItem key={sub.id} reply={sub} depth={depth + 1} />
             ))}
         </div>
       )}
@@ -229,10 +183,9 @@ function ReplyItem({
 type Props = {
   postId: string;
   replyCount: number;
-  currentUsername: string;
 };
 
-export default function ReplySection({ postId, replyCount, currentUsername }: Props) {
+export default function ReplySection({ postId, replyCount }: Props) {
   const [open, setOpen] = useState(false);
   const [replies, setReplies] = useState<ThreadsReply[] | null>(null);
   const [loadingReplies, setLoadingReplies] = useState(false);
@@ -323,13 +276,7 @@ export default function ReplySection({ postId, replyCount, currentUsername }: Pr
           )}
           {replies &&
             replies.map((reply) => (
-              <ReplyItem
-                key={reply.id}
-                reply={reply}
-                depth={1}
-                currentUsername={currentUsername}
-                onDelete={(id) => setReplies((prev) => prev?.filter((r) => r.id !== id) ?? null)}
-              />
+              <ReplyItem key={reply.id} reply={reply} depth={1} />
             ))}
 
           {/* 댓글 입력창 */}

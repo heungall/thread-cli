@@ -92,12 +92,7 @@ export default function FeedList({ username }: Props) {
       </div>
 
       {posts.map((post) => (
-        <PostCard
-          key={post.id}
-          post={post}
-          username={username}
-          onDelete={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
-        />
+        <PostCard key={post.id} post={post} username={username} />
       ))}
 
       {cursor && (
