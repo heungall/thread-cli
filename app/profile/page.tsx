@@ -19,7 +19,7 @@ export default async function ProfilePage() {
 
   return (
     <main className="w-full mx-auto" style={{ maxWidth: "800px", padding: "32px 16px" }}>
-      <TerminalHeader username={user.username} section="profile" />
+      <TerminalHeader username={user.username ?? "unknown"} section="profile" />
 
       <div className="space-y-4 text-sm">
         <div className="space-y-2">
