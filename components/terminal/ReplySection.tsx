@@ -49,9 +49,12 @@ function ReplyItem({
       if (res.ok) {
         setDeleted(true);
         onDelete?.(reply.id);
+      } else {
+        const data = await res.json();
+        alert(`삭제 실패: ${data.error ?? res.status}`);
       }
-    } catch {
-      // silent fail
+    } catch (err) {
+      alert(`삭제 실패: 네트워크 오류`);
     } finally {
       setDeleting(false);
     }
