@@ -100,37 +100,41 @@ function ReplyItem({
 
   // 최대 3단계까지 대댓글 허용
   const maxDepth = 3;
+  // 깊이별 트리 기호
+  const prefix = depth === 1 ? "├─" : depth === 2 ? "│ └─" : "│   └─";
 
   return (
     <div className="text-xs space-y-1">
       <div className="text-terminal-muted">
+        <span className="text-terminal-border mr-1">{prefix}</span>
         <span className="text-terminal-blue">@{reply.username}</span>
         <span className="mx-1">·</span>
         <span>{timeAgo(reply.timestamp)}</span>
+        {/* 답글 / 대댓글 버튼 — 댓글 옆에 인라인 */}
+        {depth < maxDepth && (
+          <>
+            <span className="mx-1">·</span>
+            <button
+              onClick={() => setReplyOpen(!replyOpen)}
+              className="hover:text-terminal-blue transition-colors"
+            >
+              ↩ 답글
+            </button>
+            <span className="mx-1">·</span>
+            <button
+              onClick={toggleSub}
+              className="hover:text-terminal-blue transition-colors"
+            >
+              {subOpen ? "▲" : "▼ 대댓글"}
+            </button>
+          </>
+        )}
       </div>
-      <div className="text-terminal-text">{reply.text}</div>
-
-      {/* 답글 / 대댓글 보기 버튼 */}
-      {depth < maxDepth && (
-        <div className="flex gap-3 text-terminal-muted">
-          <button
-            onClick={() => setReplyOpen(!replyOpen)}
-            className="hover:text-terminal-blue transition-colors"
-          >
-            ↩ 답글
-          </button>
-          <button
-            onClick={toggleSub}
-            className="hover:text-terminal-blue transition-colors"
-          >
-            {subOpen ? "▲ 접기" : "▼ 대댓글"}
-          </button>
-        </div>
-      )}
+      <div className="text-terminal-text" style={{ paddingLeft: `${depth * 12}px` }}>{reply.text}</div>
 
       {/* 답글 입력 */}
       {replyOpen && (
-        <div className="pl-3 border-l border-terminal-border space-y-1 mt-1">
+        <div style={{ paddingLeft: `${depth * 12}px` }} className="space-y-1 mt-1">
           <div className="flex gap-2">
             <span className="text-terminal-green text-xs mt-0.5 select-none">&gt;</span>
             <textarea
@@ -157,7 +161,7 @@ function ReplyItem({
 
       {/* 대댓글 목록 (재귀) */}
       {subOpen && (
-        <div className="pl-3 border-l border-terminal-border space-y-3 mt-1">
+        <div className="space-y-3 mt-1">
           {loadingSub && (
             <p className="text-terminal-muted text-xs animate-pulse">// loading...</p>
           )}
