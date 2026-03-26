@@ -18,6 +18,164 @@ type Status =
   | { type: "success" }
   | { type: "error"; message: string };
 
+// ─── 단일 댓글 아이템 (재귀적으로 대댓글 지원) ───
+
+function ReplyItem({
+  reply,
+  depth,
+}: {
+  reply: ThreadsReply;
+  depth: number;
+}) {
+  const [subOpen, setSubOpen] = useState(false);
+  const [subReplies, setSubReplies] = useState<ThreadsReply[] | null>(null);
+  const [loadingSub, setLoadingSub] = useState(false);
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [text, setText] = useState("");
+  const [status, setStatus] = useState<Status>({ type: "idle" });
+
+  async function loadSubReplies() {
+    if (subReplies !== null) return;
+    setLoadingSub(true);
+    try {
+      const res = await fetch(`/api/reply?postId=${reply.id}`);
+      const data = await res.json();
+      setSubReplies(data.data ?? []);
+    } catch {
+      setSubReplies([]);
+    } finally {
+      setLoadingSub(false);
+    }
+  }
+
+  function toggleSub() {
+    const next = !subOpen;
+    setSubOpen(next);
+    if (next) loadSubReplies();
+  }
+
+  async function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      await publish();
+    }
+  }
+
+  async function publish() {
+    if (!text.trim() || status.type === "publishing") return;
+    setStatus({ type: "publishing" });
+
+    try {
+      const res = await fetch("/api/reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: reply.id, text }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus({ type: "error", message: data.error ?? "오류 발생" });
+        return;
+      }
+
+      setStatus({ type: "success" });
+      setText("");
+      setReplyOpen(false);
+      // 대댓글 목록에 낙관적 추가
+      setSubReplies((prev) => [
+        ...(prev ?? []),
+        {
+          id: data.id,
+          text: text.trim(),
+          timestamp: new Date().toISOString(),
+          username: "me",
+        },
+      ]);
+      if (!subOpen) setSubOpen(true);
+      setTimeout(() => setStatus({ type: "idle" }), 1500);
+    } catch {
+      setStatus({ type: "error", message: "네트워크 오류" });
+    }
+  }
+
+  // 최대 3단계까지 대댓글 허용
+  const maxDepth = 3;
+
+  return (
+    <div className="text-xs space-y-1">
+      <div className="text-terminal-muted">
+        <span className="text-terminal-blue">@{reply.username}</span>
+        <span className="mx-1">·</span>
+        <span>{timeAgo(reply.timestamp)}</span>
+      </div>
+      <div className="text-terminal-text">{reply.text}</div>
+
+      {/* 답글 / 대댓글 보기 버튼 */}
+      {depth < maxDepth && (
+        <div className="flex gap-3 text-terminal-muted">
+          <button
+            onClick={() => setReplyOpen(!replyOpen)}
+            className="hover:text-terminal-blue transition-colors"
+          >
+            ↩ 답글
+          </button>
+          <button
+            onClick={toggleSub}
+            className="hover:text-terminal-blue transition-colors"
+          >
+            {subOpen ? "▲ 접기" : "▼ 대댓글"}
+          </button>
+        </div>
+      )}
+
+      {/* 답글 입력 */}
+      {replyOpen && (
+        <div className="pl-3 border-l border-terminal-border space-y-1 mt-1">
+          <div className="flex gap-2">
+            <span className="text-terminal-green text-xs mt-0.5 select-none">&gt;</span>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={status.type === "publishing"}
+              placeholder={`@${reply.username}에게 답글...`}
+              rows={2}
+              className="flex-1 bg-transparent text-terminal-text text-xs resize-none outline-none placeholder:text-terminal-border disabled:opacity-50"
+            />
+          </div>
+          {status.type === "publishing" && (
+            <p className="text-terminal-yellow text-xs animate-pulse">&gt; publishing...</p>
+          )}
+          {status.type === "success" && (
+            <p className="text-terminal-green text-xs">&gt; ✓ 답글이 달렸습니다.</p>
+          )}
+          {status.type === "error" && (
+            <p className="text-terminal-red text-xs">&gt; ✗ {status.message}</p>
+          )}
+        </div>
+      )}
+
+      {/* 대댓글 목록 (재귀) */}
+      {subOpen && (
+        <div className="pl-3 border-l border-terminal-border space-y-3 mt-1">
+          {loadingSub && (
+            <p className="text-terminal-muted text-xs animate-pulse">// loading...</p>
+          )}
+          {subReplies && subReplies.length === 0 && !loadingSub && (
+            <p className="text-terminal-muted text-xs">// 대댓글이 없습니다.</p>
+          )}
+          {subReplies &&
+            subReplies.map((sub) => (
+              <ReplyItem key={sub.id} reply={sub} depth={depth + 1} />
+            ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── 메인 ReplySection (게시물 단위) ───
+
 type Props = {
   postId: string;
   replyCount: number;
@@ -32,7 +190,7 @@ export default function ReplySection({ postId, replyCount }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   async function loadReplies() {
-    if (replies !== null) return; // 이미 로드됨
+    if (replies !== null) return;
     setLoadingReplies(true);
     try {
       const res = await fetch(`/api/reply?postId=${postId}`);
@@ -77,7 +235,6 @@ export default function ReplySection({ postId, replyCount }: Props) {
 
       setStatus({ type: "success" });
       setText("");
-      // 새 댓글을 목록에 낙관적으로 추가
       setReplies((prev) => [
         ...(prev ?? []),
         {
@@ -115,14 +272,7 @@ export default function ReplySection({ postId, replyCount }: Props) {
           )}
           {replies &&
             replies.map((reply) => (
-              <div key={reply.id} className="text-xs space-y-0.5">
-                <div className="text-terminal-muted">
-                  <span className="text-terminal-blue">@{reply.username}</span>
-                  <span className="mx-1">·</span>
-                  <span>{timeAgo(reply.timestamp)}</span>
-                </div>
-                <div className="text-terminal-text">{reply.text}</div>
-              </div>
+              <ReplyItem key={reply.id} reply={reply} depth={1} />
             ))}
 
           {/* 댓글 입력창 */}
