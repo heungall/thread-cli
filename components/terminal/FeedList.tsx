@@ -26,6 +26,10 @@ export default function FeedList({ username }: Props) {
     try {
       const url = nextCursor ? `/api/feed?cursor=${nextCursor}` : "/api/feed";
       const res = await fetch(url);
+      if (res.status === 401) {
+        window.location.href = "/";
+        return;
+      }
       if (!res.ok) throw new Error("fetch failed");
       const data: FeedResponse = await res.json();
 

@@ -39,6 +39,7 @@ function ReplyItem({
     setLoadingSub(true);
     try {
       const res = await fetch(`/api/reply?postId=${reply.id}`);
+      if (res.status === 401) { window.location.href = "/"; return; }
       const data = await res.json();
       setSubReplies(data.data ?? []);
     } catch {
@@ -198,6 +199,7 @@ export default function ReplySection({ postId, replyCount }: Props) {
     setLoadingReplies(true);
     try {
       const res = await fetch(`/api/reply?postId=${postId}`);
+      if (res.status === 401) { window.location.href = "/"; return; }
       const data = await res.json();
       setReplies(data.data ?? []);
     } catch {
